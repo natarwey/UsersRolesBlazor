@@ -17,7 +17,7 @@ namespace UsersRolesBlazor.ApiRequest
 
         public async Task<UserData> GetAllUsersAsync()
         {
-            var url = "api/UsersLogins/getAllUsers";
+            var url = "api/Users/getAllUser";
 
             try
             {
@@ -48,7 +48,7 @@ namespace UsersRolesBlazor.ApiRequest
 
         public async Task<UserAddData> AddNewUser(ReqDataUser user)
         {
-            var url = "api/UsersLogins/createNewUser";
+            var url = "api/Users/createNewUser";
 
             try
             {

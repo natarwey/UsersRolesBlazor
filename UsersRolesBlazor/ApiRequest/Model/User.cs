@@ -1,16 +1,23 @@
-﻿namespace UsersRolesBlazor.ApiRequest.Model
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+
+namespace UsersRolesBlazor.ApiRequest.Model
 {
     public class UserDataShort
     {
         public int id_User { get; set; }
-        public string Name { get; set; }
-        public string Descrioption { get; set; }
+        public string name { get; set; }
+        public string description { get; set; }
+        public int role_id { get; set; }
+        public object roles { get; set; }
+        public object emails { get; set; }
+
     }
 
     public class UserData
     {
         public bool status { get; set; }
-        public UserDataContainer data { get; set; }
+        public List<UserDataShort> data { get; set; }
     }
 
     public class UserDataContainer
@@ -20,10 +27,12 @@
 
     public class ReqDataUser
     {
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string Email { get; set; }
-        public string Password { get; set; }
+        public string email { get; set; }
+        public string password { get; set; }
+        public string name { get; set; }
+        public string description { get; set; }
+
+
     }
 
     public class UserAddData

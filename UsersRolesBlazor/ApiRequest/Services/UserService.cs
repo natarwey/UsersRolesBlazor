@@ -1,4 +1,8 @@
-﻿namespace UsersRolesBlazor.ApiRequest.Services
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using UsersRolesBlazor.ApiRequest.Model;
+
+namespace UsersRolesBlazor.ApiRequest.Services
 {
     public class UserService
     {
@@ -14,17 +18,23 @@
             await Task.Delay(1000);
             return new User
             {
-                Id = 1,
+                id_User = 1,
                 Name = "John Doe",
-                Role = "Admin"
+                
             };
         }
     }
 
     public class User
     {
-        public int Id { get; set; }
+        [Key]
+        public int id_User { get; set; }
         public string Name { get; set; }
-        public string Role { get; set; }
+        public string Description { get; set; }
+        [Required]
+        [ForeignKey("Roles")]
+        public int Role_id { get; set; }
+        public Roles Roles { get; set; }
+        public ICollection<Emails> Emails { get; set; }
     }
 }

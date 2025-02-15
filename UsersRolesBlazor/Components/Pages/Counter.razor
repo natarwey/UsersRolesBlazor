@@ -1,19 +1,101 @@
 ﻿@page "/counter"
+@using UsersRolesBlazor.ApiRequest
+@using UsersRolesBlazor.ApiRequest.Model
 @rendermode InteractiveServer
 
-<PageTitle>Counter</PageTitle>
+<PageTitle>Users list</PageTitle>
 
-<h1>Counter</h1>
+<h1>Список</h1>
 
-<p role="status">Current count: @currentCount</p>
+<p class="text-center fw-bold mb-5 mx-1 mx-md-4 mt-4">
+    <table class="table table-bordered">
+        <thead class="alert-dark">
+            <tr>
+                <th>id_User</th>
+                <th>Name</th>
+                <th>Desc</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (users == null)
+            {
+                <tr>
+                    <td colspan="3" class="text-center">Loading...</td>
+                </tr>
+            }
+            else if (!users.Any())
+            {
+                <tr>
+                    <td colspan="3" class="text-center">No users found</td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var user in users)
+                {
+                    <tr>
+                        <td>@user.id_User</td>
+                        <td>@user.name</td>
+                        <td>@user.description</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</p>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<h1>Добавление</h1>
+
+
+<div class="d-flex align-items-center h-custom-2 px-5 ms-xl-4 mt-5 pt-5 pt-xl-0 mt-xl-n5">
+    <form style="width: 23rem;">
+        <div class="form-outline mb-4">
+            <label class="form-label" for="form2Example28">Login</label>
+            <input type="password" @bind="@reqDataUser.email" id="form2Example28" class="form-control form-control-lg" />
+        </div>
+        <div class="form-outline mb-4">
+            <label class="form-label" for="form2Example28">Password</label>
+            <input type="password" @bind="@reqDataUser.password" id="form2Example28" class="form-control form-control-lg" />
+        </div>
+        <div class="form-outline mb-4">
+            <label class="form-label" for="form2Example28">Name</label>
+            <input type="password" @bind="@reqDataUser.name" id="form2Example28" class="form-control form-control-lg" />
+        </div>
+        <div class="form-outline mb-4">
+            <label class="form-label" for="form2Example28">Description</label>
+            <input type="password" @bind="@reqDataUser.description" id="form2Example28" class="form-control form-control-lg" />
+        </div>
+        <div class="pt-1 mb-4">
+            <button class="btn btn-info btn-lg btn-block" @onclick="AddNewUser" type="button">Add</button>
+        </div>
+    </form>
+</div>
 
 @code {
-    private int currentCount = 0;
+    private List<UserDataShort> users;
+    private ReqDataUser reqDataUser = new ReqDataUser();
 
-    private void IncrementCount()
+    [Inject] private ApiRequestService ApiRequest { get; set; }
+
+    protected override async Task OnInitializedAsync()
     {
-        currentCount++;
+        await getAllUsers();
+    }
+
+    private async Task getAllUsers()
+    {
+        var userData = await ApiRequest.GetAllUsersAsync();
+        users = userData?.data ?? new List<UserDataShort>();
+
+        StateHasChanged();
+    }
+
+
+    private async void AddNewUser()
+    {
+        var reqAddUserData = await ApiRequest.AddNewUser(reqDataUser);
+
+        if (!reqAddUserData.status) return;
+        await getAllUsers();
     }
 }
