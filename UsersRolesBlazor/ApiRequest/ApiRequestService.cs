@@ -68,5 +68,51 @@ namespace UsersRolesBlazor.ApiRequest
                 return new UserAddData();
             }
         }
+
+        public async Task<UserUpdateData> UpdateUserAsync(int userId, ReqDataUser user)
+        {
+            var url = $"api/Users/updateUser/{userId}";
+
+            try
+            {
+                var response = await _httpClient.PutAsJsonAsync(url, user);
+
+                response.EnsureSuccessStatusCode();
+
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                var userUpdateData = JsonSerializer.Deserialize<UserUpdateData>(responseContent);
+
+                return userUpdateData ?? new UserUpdateData();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при обновлении пользователя");
+                return new UserUpdateData { status = false, message = ex.Message };
+            }
+        }
+
+        public async Task<UserDeleteData> DeleteUserAsync(int userId)
+        {
+            var url = $"api/Users/deleteUser/{userId}";
+
+            try
+            {
+                var response = await _httpClient.DeleteAsync(url);
+
+                response.EnsureSuccessStatusCode();
+
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                var userDeleteData = JsonSerializer.Deserialize<UserDeleteData>(responseContent);
+
+                return userDeleteData ?? new UserDeleteData();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при удалении пользователя");
+                return new UserDeleteData();
+            }
+        }
     }
 }

@@ -5,7 +5,7 @@
 
 <PageTitle>Users list</PageTitle>
 
-<h1>Список</h1>
+<h1>List of users</h1>
 
 <p class="text-center fw-bold mb-5 mx-1 mx-md-4 mt-4">
     <table class="table table-bordered">
@@ -13,20 +13,21 @@
             <tr>
                 <th>id_User</th>
                 <th>Name</th>
-                <th>Desc</th>
+                <th>Description</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             @if (users == null)
             {
                 <tr>
-                    <td colspan="3" class="text-center">Loading...</td>
+                    <td colspan="4" class="text-center">Loading...</td>
                 </tr>
             }
             else if (!users.Any())
             {
                 <tr>
-                    <td colspan="3" class="text-center">No users found</td>
+                    <td colspan="4" class="text-center">No users found</td>
                 </tr>
             }
             else
@@ -37,6 +38,10 @@
                         <td>@user.id_User</td>
                         <td>@user.name</td>
                         <td>@user.description</td>
+                        <td>
+                            <button class="btn btn-warning" @onclick="() => StartEdit(user.id_User)">Edit</button>
+                            <button class="btn btn-danger" @onclick="() => DeleteUser(user.id_User)">Delete</button>
+                        </td>
                     </tr>
                 }
             }
@@ -44,14 +49,35 @@
     </table>
 </p>
 
-<h1>Добавление</h1>
+@if (isEditing)
+{
+    <h1>Editing a user</h1>
 
+    <div class="d-flex align-items-center h-custom-2 px-5 ms-xl-4 mt-5 pt-5 pt-xl-0 mt-xl-n5">
+        <form style="width: 23rem;">
+            <div class="form-outline mb-4">
+                <label class="form-label" for="editName">Name</label>
+                <input type="text" @bind="@editName" id="editName" class="form-control form-control-lg" />
+            </div>
+            <div class="form-outline mb-4">
+                <label class="form-label" for="editDescription">Description</label>
+                <input type="text" @bind="@editDescription" id="editDescription" class="form-control form-control-lg" />
+            </div>
+            <div class="pt-1 mb-4">
+                <button class="btn btn-warning btn-lg btn-block" @onclick="SaveChanges" type="button">Save Changes</button>
+                <button class="btn btn-secondary btn-lg btn-block" @onclick="CancelEdit" type="button">Cancel</button>
+            </div>
+        </form>
+    </div>
+}
+
+<h1>Adding a new user</h1>
 
 <div class="d-flex align-items-center h-custom-2 px-5 ms-xl-4 mt-5 pt-5 pt-xl-0 mt-xl-n5">
     <form style="width: 23rem;">
         <div class="form-outline mb-4">
             <label class="form-label" for="form2Example28">Login</label>
-            <input type="password" @bind="@reqDataUser.email" id="form2Example28" class="form-control form-control-lg" />
+            <input type="text" @bind="@reqDataUser.email" id="form2Example28" class="form-control form-control-lg" />
         </div>
         <div class="form-outline mb-4">
             <label class="form-label" for="form2Example28">Password</label>
@@ -59,14 +85,14 @@
         </div>
         <div class="form-outline mb-4">
             <label class="form-label" for="form2Example28">Name</label>
-            <input type="password" @bind="@reqDataUser.name" id="form2Example28" class="form-control form-control-lg" />
+            <input type="text" @bind="@reqDataUser.name" id="form2Example28" class="form-control form-control-lg" />
         </div>
         <div class="form-outline mb-4">
             <label class="form-label" for="form2Example28">Description</label>
-            <input type="password" @bind="@reqDataUser.description" id="form2Example28" class="form-control form-control-lg" />
+            <input type="text" @bind="@reqDataUser.description" id="form2Example28" class="form-control form-control-lg" />
         </div>
         <div class="pt-1 mb-4">
-            <button class="btn btn-info btn-lg btn-block" @onclick="AddNewUser" type="button">Add</button>
+            <button class="btn btn-warning btn-lg btn-block" @onclick="AddNewUser" type="button">Add</button>
         </div>
     </form>
 </div>
@@ -74,6 +100,12 @@
 @code {
     private List<UserDataShort> users;
     private ReqDataUser reqDataUser = new ReqDataUser();
+
+    // Поля для редактирования
+    private bool isEditing = false;
+    private int editingUserId;
+    private string editName;
+    private string editDescription;
 
     [Inject] private ApiRequestService ApiRequest { get; set; }
 
@@ -90,12 +122,61 @@
         StateHasChanged();
     }
 
-
     private async void AddNewUser()
     {
         var reqAddUserData = await ApiRequest.AddNewUser(reqDataUser);
 
         if (!reqAddUserData.status) return;
         await getAllUsers();
+    }
+
+    private void StartEdit(int userId)
+    {
+        var userToEdit = users.FirstOrDefault(u => u.id_User == userId);
+        if (userToEdit != null)
+        {
+            isEditing = true;
+            editingUserId = userId;
+            editName = userToEdit.name;
+            editDescription = userToEdit.description;
+        }
+    }
+
+    private async void SaveChanges()
+    {
+        var userToUpdate = new ReqDataUser
+            {
+                email = "user@example.com", // Пример, если email обязателен
+                password = "password",      // Пример, если password обязателен
+                name = editName,
+                description = editDescription
+            };
+
+        var reqUpdateUserData = await ApiRequest.UpdateUserAsync(editingUserId, userToUpdate);
+
+        if (reqUpdateUserData.status)
+        {
+            isEditing = false;
+            await getAllUsers();
+        }
+        else
+        {
+            Console.WriteLine("Ошибка при обновлении пользователя");
+        }
+    }
+
+    private void CancelEdit()
+    {
+        isEditing = false;
+    }
+
+    private async void DeleteUser(int userId)
+    {
+        var reqDeleteUserData = await ApiRequest.DeleteUserAsync(userId);
+
+        if (reqDeleteUserData.status)
+        {
+            await getAllUsers();
+        }
     }
 }
