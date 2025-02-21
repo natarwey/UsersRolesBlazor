@@ -12,6 +12,8 @@
         <thead class="alert-dark">
             <tr>
                 <th>id_User</th>
+               @*  <th>Login</th>
+                <th>Password</th> *@
                 <th>Name</th>
                 <th>Description</th>
                 <th>Actions</th>
@@ -36,6 +38,8 @@
                 {
                     <tr>
                         <td>@user.id_User</td>
+                       @*  <td>@user.email</td>
+                        <td>@user.password</td> *@
                         <td>@user.name</td>
                         <td>@user.description</td>
                         <td>
@@ -55,6 +59,14 @@
 
     <div class="d-flex align-items-center h-custom-2 px-5 ms-xl-4 mt-5 pt-5 pt-xl-0 mt-xl-n5">
         <form style="width: 23rem;">
+            <div class="form-outline mb-4">
+                <label class="form-label" for="editEmail">Login</label>
+                <input type="text" @bind="@editEmail" id="editEmail" class="form-control form-control-lg" />
+            </div>
+            <div class="form-outline mb-4">
+                <label class="form-label" for="editPassword">Password</label>
+                <input type="text" @bind="@editPassword" id="editPassword" class="form-control form-control-lg" />
+            </div>
             <div class="form-outline mb-4">
                 <label class="form-label" for="editName">Name</label>
                 <input type="text" @bind="@editName" id="editName" class="form-control form-control-lg" />
@@ -104,6 +116,8 @@
     // Поля для редактирования
     private bool isEditing = false;
     private int editingUserId;
+    private string editEmail;
+    private string editPassword;
     private string editName;
     private string editDescription;
 
@@ -137,6 +151,8 @@
         {
             isEditing = true;
             editingUserId = userId;
+            editEmail = userToEdit.email; 
+            editPassword = userToEdit.password;
             editName = userToEdit.name;
             editDescription = userToEdit.description;
         }
@@ -145,12 +161,12 @@
     private async void SaveChanges()
     {
         var userToUpdate = new ReqDataUser
-            {
-                email = "user@example.com", // Пример, если email обязателен
-                password = "password",      // Пример, если password обязателен
-                name = editName,
-                description = editDescription
-            };
+        {
+            email = editEmail,
+            password = editPassword,
+            name = editName,
+            description = editDescription
+        };
 
         var reqUpdateUserData = await ApiRequest.UpdateUserAsync(editingUserId, userToUpdate);
 

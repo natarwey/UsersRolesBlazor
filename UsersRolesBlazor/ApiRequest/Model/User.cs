@@ -10,7 +10,8 @@ namespace UsersRolesBlazor.ApiRequest.Model
         public string description { get; set; }
         public int role_id { get; set; }
         public object roles { get; set; }
-        public object emails { get; set; }
+        public string email { get; set; }
+        public string password { get; set; }
     }
 
     public class UserData
